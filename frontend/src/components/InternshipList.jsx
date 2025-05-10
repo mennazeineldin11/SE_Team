@@ -4,27 +4,22 @@ import React, { useState } from 'react';
 import internships from '../data/internships.json';
 
 export default function InternshipList() {
-  // —1— State for search term and status filter
-  const [searchTerm, setSearchTerm]       = useState('');
+  // 1️⃣ State for search term and status filter
+  const [searchTerm, setSearchTerm]     = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
-  // Map the user‐facing filter names to our data.status values
-  const statusMap = {
-    'Current Intern': 'Present',
-    'Internship Complete': 'Past'
-  };
-
-  // —2— Compute filtered list before rendering
+  // 2️⃣ Compute filtered list before rendering
   const filtered = internships.filter(item => {
-    // Search matches company OR position
+    // Search: match company or role (case-insensitive)
     const matchesSearch =
       item.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.position.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Status filter: All, Current Intern, or Internship Complete
+    // Status: All / Current Intern (Present) / Internship Complete (Past)
     const matchesStatus =
       statusFilter === 'All' ||
-      item.status === statusMap[statusFilter];
+      (statusFilter === 'Current Intern' && item.status === 'Present') ||
+      (statusFilter === 'Internship Complete' && item.status === 'Past');
 
     return matchesSearch && matchesStatus;
   });
@@ -33,20 +28,20 @@ export default function InternshipList() {
     <div style={{ padding: 20 }}>
       <h1>My Internships</h1>
 
-      {/* —3— Search box & status dropdown */}
+      {/* 3️⃣ Search input & status dropdown */}
       <div style={{ marginBottom: 12 }}>
-        <label>
+        <label style={{ marginRight: 16 }}>
           Search:{' '}
           <input
             type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Company or role"
-            style={{ marginRight: 12, padding: 4 }}
+            style={{ padding: 4 }}
           />
         </label>
         <label>
-          Status:{' '}
+          Show:{' '}
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
@@ -59,7 +54,7 @@ export default function InternshipList() {
         </label>
       </div>
 
-      {/* —4— Internships table */}
+      {/* 4️⃣ Internships table */}
       <table
         style={{
           width: '100%',
@@ -89,7 +84,9 @@ export default function InternshipList() {
               <td style={{ border: '1px solid #eee', padding: 8 }}>
                 {item.endDate || '—'}
               </td>
-              <td style={{ border: '1px solid #eee', padding: 8 }}>{item.status}</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                {item.status === 'Present' ? 'Current Intern' : 'Internship Complete'}
+              </td>
             </tr>
           ))}
         </tbody>
