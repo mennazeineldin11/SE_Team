@@ -4,24 +4,24 @@ import React, { useState } from 'react';
 import internships from '../data/internships.json';
 
 export default function InternshipList() {
-  // — Filters & selection —
+  // Filters & selection
   const [searchTerm, setSearchTerm]     = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [fromDate, setFromDate]         = useState('');
   const [toDate, setToDate]             = useState('');
   const [selected, setSelected]         = useState(null);
 
-  // — Evaluation state —
-  const [evaluations, setEvaluations]   = useState({});
-  const [evalEditing, setEvalEditing]   = useState(false);
-  const [evalForm, setEvalForm]         = useState({ recommend: false, comment: '' });
+  // Evaluation state
+  const [evaluations, setEvaluations] = useState({});
+  const [evalEditing, setEvalEditing] = useState(false);
+  const [evalForm, setEvalForm]       = useState({ recommend: false, comment: '' });
 
-  // — Report state —
+  // Report state
   const [reports, setReports]           = useState({});
   const [reportEditing, setReportEditing] = useState(false);
   const [reportForm, setReportForm]     = useState({ title: '', introduction: '', body: '' });
 
-  // — Filter logic —
+  // Filter logic
   const filtered = internships.filter(item => {
     const matchesSearch =
       item.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -41,15 +41,13 @@ export default function InternshipList() {
     return matchesSearch && matchesStatus && afterFrom && beforeTo;
   });
 
-  // — Handlers for selecting an internship —
+  // Select handler
   const handleSelect = intern => {
     setSelected(intern);
-
     // Prefill evaluation
     const ev = evaluations[intern.id] || {};
     setEvalForm({ recommend: ev.recommend || false, comment: ev.comment || '' });
     setEvalEditing(false);
-
     // Prefill report
     const rp = reports[intern.id] || {};
     setReportForm({
@@ -60,31 +58,31 @@ export default function InternshipList() {
     setReportEditing(false);
   };
 
-  // — Evaluation CRUD —
+  // Evaluation CRUD
   const submitEvaluation = e => {
     e.preventDefault();
     setEvaluations(prev => ({ ...prev, [selected.id]: evalForm }));
     setEvalEditing(false);
   };
   const deleteEvaluation = () => {
-    setEvaluations(prev => { const c={...prev}; delete c[selected.id]; return c; });
+    setEvaluations(prev => { const c = { ...prev }; delete c[selected.id]; return c; });
     setEvalForm({ recommend: false, comment: '' });
     setEvalEditing(false);
   };
 
-  // — Report CRUD —
+  // Report CRUD
   const submitReport = e => {
     e.preventDefault();
     setReports(prev => ({ ...prev, [selected.id]: reportForm }));
     setReportEditing(false);
   };
   const deleteReport = () => {
-    setReports(prev => { const c={...prev}; delete c[selected.id]; return c; });
+    setReports(prev => { const c = { ...prev }; delete c[selected.id]; return c; });
     setReportForm({ title: '', introduction: '', body: '' });
     setReportEditing(false);
   };
 
-  // — Download report as “PDF” (Blob with .pdf) —
+  // Download as “PDF”
   const downloadReport = () => {
     if (!reports[selected.id]) return;
     const data = reports[selected.id];
@@ -112,7 +110,7 @@ ${data.body}
     <div style={{ padding: 20 }}>
       <h1>My Internships</h1>
 
-      {/* FILTER CONTROLS */}
+      {/* Filters */}
       <div style={{ marginBottom: 12, display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         <label>
           Search:{' '}
@@ -159,7 +157,7 @@ ${data.body}
         </label>
       </div>
 
-      {/* INTERNSHIPS TABLE */}
+      {/* Internships Table */}
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 12 }}>
         <thead>
           <tr>
@@ -195,7 +193,7 @@ ${data.body}
         </tbody>
       </table>
 
-      {/* DETAILS + EVALUATION + REPORT */}
+      {/* Selected Details */}
       {selected && (
         <div style={{ marginTop: 24, padding: 16, border: '1px solid #ccc' }}>
           <h2>Selected Internship Details</h2>
@@ -203,7 +201,7 @@ ${data.body}
           <p><strong>Role:</strong> {selected.position}</p>
           <p><strong>Dates:</strong> {selected.startDate} – {selected.endDate || 'Present'}</p>
 
-          {/* EVALUATION */}
+          {/* Evaluation */}
           <h3>Evaluation</h3>
           {evaluations[selected.id] && !evalEditing ? (
             <div>
@@ -214,27 +212,81 @@ ${data.body}
             </div>
           ) : (
             <form onSubmit={submitEvaluation}>
-              {/* …evaluation form… */}
+              <label style={{ display: 'block', marginBottom: 8 }}>
+                Recommend to others:{' '}
+                <input
+                  type="checkbox"
+                  checked={evalForm.recommend}
+                  onChange={e => setEvalForm(f => ({ ...f, recommend: e.target.checked }))}
+                />
+              </label>
+              <label style={{ display: 'block', marginBottom: 8 }}>
+                Comment:
+                <textarea
+                  value={evalForm.comment}
+                  onChange={e => setEvalForm(f => ({ ...f, comment: e.target.value }))}
+                  rows={3}
+                  style={{ width: '100%', padding: 4 }}
+                />
+              </label>
+              <button type="submit" style={{ marginRight: 8 }}>
+                {evaluations[selected.id] ? 'Update' : 'Submit'}
+              </button>
+              {evaluations[selected.id] && (
+                <button type="button" onClick={() => setEvalEditing(false)}>Cancel</button>
+              )}
             </form>
           )}
 
-          {/* REPORT */}
+          {/* Report */}
           <h3>Report</h3>
           {reports[selected.id] && !reportEditing ? (
             <div>
               <p><strong>Title:</strong> {reports[selected.id].title}</p>
               <p><strong>Introduction:</strong> {reports[selected.id].introduction}</p>
               <p><strong>Body:</strong> {reports[selected.id].body}</p>
-              <button onClick={() => setReportEditing(true)} style={{ marginRight: 8 }}>
-                Edit
-              </button>
+              <button onClick={() => setReportEditing(true)} style={{ marginRight: 8 }}>Edit</button>
               <button onClick={deleteReport} style={{ marginRight: 8 }}>Delete</button>
-              {/* ← new Download button: */}
               <button onClick={downloadReport}>Download Report as PDF</button>
             </div>
           ) : (
             <form onSubmit={submitReport}>
-              {/* …report form… */}
+              <label style={{ display: 'block', marginBottom: 8 }}>
+                Title:
+                <input
+                  type="text"
+                  value={reportForm.title}
+                  onChange={e => setReportForm(f => ({ ...f, title: e.target.value }))}
+                  style={{ width: '100%', padding: 4 }}
+                  required
+                />
+              </label>
+              <label style={{ display: 'block', marginBottom: 8 }}>
+                Introduction:
+                <textarea
+                  value={reportForm.introduction}
+                  onChange={e => setReportForm(f => ({ ...f, introduction: e.target.value }))}
+                  rows={2}
+                  style={{ width: '100%', padding: 4 }}
+                  required
+                />
+              </label>
+              <label style={{ display: 'block', marginBottom: 8 }}>
+                Body:
+                <textarea
+                  value={reportForm.body}
+                  onChange={e => setReportForm(f => ({ ...f, body: e.target.value }))}
+                  rows={4}
+                  style={{ width: '100%', padding: 4 }}
+                  required
+                />
+              </label>
+              <button type="submit" style={{ marginRight: 8 }}>
+                {reports[selected.id] ? 'Update Report' : 'Submit Report'}
+              </button>
+              {reports[selected.id] && (
+                <button type="button" onClick={() => setReportEditing(false)}>Cancel</button>
+              )}
             </form>
           )}
         </div>
