@@ -4,17 +4,28 @@ import React, { useState } from 'react';
 import internships from '../data/internships.json';
 
 export default function InternshipList() {
-  // 1. State for search term and status filter
+  // —1— State for search term and status filter
   const [searchTerm, setSearchTerm]       = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
-  // 2. Compute filtered list before rendering
+  // Map the user‐facing filter names to our data.status values
+  const statusMap = {
+    'Current Intern': 'Present',
+    'Internship Complete': 'Past'
+  };
+
+  // —2— Compute filtered list before rendering
   const filtered = internships.filter(item => {
+    // Search matches company OR position
     const matchesSearch =
       item.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.position.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Status filter: All, Current Intern, or Internship Complete
     const matchesStatus =
-      statusFilter === 'All' || item.status === statusFilter;
+      statusFilter === 'All' ||
+      item.status === statusMap[statusFilter];
+
     return matchesSearch && matchesStatus;
   });
 
@@ -22,7 +33,7 @@ export default function InternshipList() {
     <div style={{ padding: 20 }}>
       <h1>My Internships</h1>
 
-      {/* 3. Search box & status dropdown */}
+      {/* —3— Search box & status dropdown */}
       <div style={{ marginBottom: 12 }}>
         <label>
           Search:{' '}
@@ -42,13 +53,13 @@ export default function InternshipList() {
             style={{ padding: 4 }}
           >
             <option>All</option>
-            <option>Past</option>
-            <option>Present</option>
+            <option>Current Intern</option>
+            <option>Internship Complete</option>
           </select>
         </label>
       </div>
 
-      {/* 4. Internships table */}
+      {/* —4— Internships table */}
       <table
         style={{
           width: '100%',
