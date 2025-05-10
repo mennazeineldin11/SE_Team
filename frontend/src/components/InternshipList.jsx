@@ -6,18 +6,17 @@ export default function InternshipList() {
     <div style={{ padding: 20 }}>
       <h1>My Internships</h1>
       <table style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          marginTop: 12
-        }}>
+        width: '100%',
+        borderCollapse: 'collapse',
+        marginTop: 12
+      }}>
         <thead>
           <tr>
-            {['#','Company','Role','Start Date','End Date','Status']
-              .map(col => (
-                <th key={col}
-                    style={{ border: '1px solid #ccc', padding: 8, textAlign: 'left' }}>
-                  {col}
-                </th>
+            {['#','Company','Role','Start Date','End Date','Status'].map(col => (
+              <th key={col}
+                  style={{ border: '1px solid #ccc', padding: 8, textAlign: 'left' }}>
+                {col}
+              </th>
             ))}
           </tr>
         </thead>
