@@ -1,7 +1,6 @@
 import React from 'react';
 import InternshipList from './components/InternshipList';
-import React from 'react';
-import InternshipList from './components/InternshipList';
+
 import CoursesList    from './components/CoursesList';
 function App() {
   return <InternshipList />;
