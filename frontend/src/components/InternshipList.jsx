@@ -4,28 +4,24 @@ import React, { useState } from 'react';
 import internships from '../data/internships.json';
 
 export default function InternshipList() {
-  // — Filters & selection (existing) —
+  // Filters & selection
   const [searchTerm, setSearchTerm]     = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [fromDate, setFromDate]         = useState('');
   const [toDate, setToDate]             = useState('');
   const [selected, setSelected]         = useState(null);
 
-  // — Evaluation state (story 43) —
+  // Evaluation state
   const [evaluations, setEvaluations] = useState({});
   const [evalEditing, setEvalEditing] = useState(false);
-  const [evalForm, setEvalForm] = useState({ recommend: false, comment: '' });
+  const [evalForm, setEvalForm]       = useState({ recommend: false, comment: '' });
 
-  // — Report state (story 44) —
-  const [reports, setReports]       = useState({});
+  // Report state
+  const [reports, setReports]           = useState({});
   const [reportEditing, setReportEditing] = useState(false);
-  const [reportForm, setReportForm] = useState({
-    title: '',
-    introduction: '',
-    body: ''
-  });
+  const [reportForm, setReportForm]     = useState({ title: '', introduction: '', body: '' });
 
-  // — Filter logic —
+  // Apply search, status & date filters
   const filtered = internships.filter(item => {
     const matchesSearch =
       item.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -45,16 +41,14 @@ export default function InternshipList() {
     return matchesSearch && matchesStatus && afterFrom && beforeTo;
   });
 
-  // — Handlers for selecting an internship —
+  // Handlers
   const handleSelect = intern => {
     setSelected(intern);
-
-    // Prefill evaluation form if exists
+    // Prefill evaluation form
     const ev = evaluations[intern.id] || {};
     setEvalForm({ recommend: ev.recommend || false, comment: ev.comment || '' });
     setEvalEditing(false);
-
-    // Prefill report form if exists
+    // Prefill report form
     const rp = reports[intern.id] || {};
     setReportForm({
       title: rp.title || '',
@@ -64,40 +58,24 @@ export default function InternshipList() {
     setReportEditing(false);
   };
 
-  // — CRUD for Evaluation —
   const submitEvaluation = e => {
     e.preventDefault();
-    setEvaluations(prev => ({
-      ...prev,
-      [selected.id]: { ...evalForm }
-    }));
+    setEvaluations(prev => ({ ...prev, [selected.id]: evalForm }));
     setEvalEditing(false);
   };
   const deleteEvaluation = () => {
-    setEvaluations(prev => {
-      const copy = { ...prev };
-      delete copy[selected.id];
-      return copy;
-    });
+    setEvaluations(prev => { const c={...prev}; delete c[selected.id]; return c; });
     setEvalForm({ recommend: false, comment: '' });
     setEvalEditing(false);
   };
 
-  // — CRUD for Report —
   const submitReport = e => {
     e.preventDefault();
-    setReports(prev => ({
-      ...prev,
-      [selected.id]: { ...reportForm }
-    }));
+    setReports(prev => ({ ...prev, [selected.id]: reportForm }));
     setReportEditing(false);
   };
   const deleteReport = () => {
-    setReports(prev => {
-      const copy = { ...prev };
-      delete copy[selected.id];
-      return copy;
-    });
+    setReports(prev => { const c={...prev}; delete c[selected.id]; return c; });
     setReportForm({ title: '', introduction: '', body: '' });
     setReportEditing(false);
   };
@@ -106,27 +84,97 @@ export default function InternshipList() {
     <div style={{ padding: 20 }}>
       <h1>My Internships</h1>
 
-      {/* Filters */}
+      {/* FILTER CONTROLS */}
       <div style={{ marginBottom: 12, display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        {/* existing search/status/date controls */}
-        {/* …omitted for brevity… */}
+        <label>
+          Search:{' '}
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            placeholder="Company or role"
+            style={{ padding: 4 }}
+          />
+        </label>
+        <label>
+          Show:{' '}
+          <select
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            style={{ padding: 4 }}
+          >
+            <option>All</option>
+            <option>Current Intern</option>
+            <option>Internship Complete</option>
+          </select>
+        </label>
+        <label>
+          From:{' '}
+          <input
+            type="date"
+            value={fromDate}
+            onChange={e => setFromDate(e.target.value)}
+            style={{ padding: 4 }}
+          />
+        </label>
+        <label>
+          To:{' '}
+          <input
+            type="date"
+            value={toDate}
+            onChange={e => setToDate(e.target.value)}
+            style={{ padding: 4 }}
+          />
+        </label>
       </div>
 
-      {/* Internships Table */}
+      {/* INTERNSHIPS TABLE */}
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 12 }}>
-        {/* …table head & body as before… */}
-        {/* include the Select button column */}
+        <thead>
+          <tr>
+            {['#','Company','Role','Start Date','End Date','Status','Select'].map(col => (
+              <th key={col} style={{ border: '1px solid #ccc', padding: 8, textAlign: 'left' }}>
+                {col}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map(item => (
+            <tr key={item.id}>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>{item.id}</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>{item.company}</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>{item.position}</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>{item.startDate}</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                {item.endDate || '—'}
+              </td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                {item.status === 'Present' ? 'Current Intern' : 'Internship Complete'}
+              </td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                {item.status === 'Past' ? (
+                  <button onClick={() => handleSelect(item)} style={{ padding: '4px 8px' }}>
+                    Select
+                  </button>
+                ) : '—'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
       </table>
 
-      {/* Selected Internship Details */}
+      {/* DETAILS + EVALUATION + REPORT */}
       {selected && (
         <div style={{ marginTop: 24, padding: 16, border: '1px solid #ccc' }}>
           <h2>Selected Internship Details</h2>
           <p><strong>Company:</strong> {selected.company}</p>
           <p><strong>Role:</strong> {selected.position}</p>
-          <p><strong>Dates:</strong> {selected.startDate} – {selected.endDate || 'Present'}</p>
+          <p>
+            <strong>Dates:</strong> {selected.startDate} – {selected.endDate || 'Present'}
+          </p>
 
-          {/* Evaluation Section (story 43) */}
+          {/* EVALUATION */}
           <h3>Evaluation</h3>
           {evaluations[selected.id] && !evalEditing ? (
             <div>
@@ -158,14 +206,12 @@ export default function InternshipList() {
                 {evaluations[selected.id] ? 'Update' : 'Submit'}
               </button>
               {evaluations[selected.id] && (
-                <button type="button" onClick={() => setEvalEditing(false)}>
-                  Cancel
-                </button>
+                <button type="button" onClick={() => setEvalEditing(false)}>Cancel</button>
               )}
             </form>
           )}
 
-          {/* Report Section (story 44) */}
+          {/* REPORT */}
           <h3>Report</h3>
           {reports[selected.id] && !reportEditing ? (
             <div>
@@ -211,9 +257,7 @@ export default function InternshipList() {
                 {reports[selected.id] ? 'Update Report' : 'Submit Report'}
               </button>
               {reports[selected.id] && (
-                <button type="button" onClick={() => setReportEditing(false)}>
-                  Cancel
-                </button>
+                <button type="button" onClick={() => setReportEditing(false)}>Cancel</button>
               )}
             </form>
           )}
