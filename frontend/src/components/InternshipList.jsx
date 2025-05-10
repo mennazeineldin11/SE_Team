@@ -4,16 +4,24 @@ import React, { useState } from 'react';
 import internships from '../data/internships.json';
 
 export default function InternshipList() {
-  // 0️⃣ Add state for selection
-  const [selected, setSelected] = useState(null);
-
-  // 1️⃣ Existing state
+  // — Filters & selection (existing) —
   const [searchTerm, setSearchTerm]     = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [fromDate, setFromDate]         = useState('');
   const [toDate, setToDate]             = useState('');
+  const [selected, setSelected]         = useState(null);
 
-  // 2️⃣ Filter logic
+  // — Evaluations state: map internshipId → { recommend, comment } —
+  const [evaluations, setEvaluations] = useState({});
+  const [isEditing, setIsEditing]     = useState(false);
+
+  // form state for the evaluation inputs
+  const [formValues, setFormValues] = useState({
+    recommend: false,
+    comment: ''
+  });
+
+  // — Filter logic (existing) —
   const filtered = internships.filter(item => {
     const matchesSearch =
       item.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -33,11 +41,42 @@ export default function InternshipList() {
     return matchesSearch && matchesStatus && afterFrom && beforeTo;
   });
 
+  // — Handlers for evaluation CRUD —
+  const handleSelect = intern => {
+    setSelected(intern);
+    setIsEditing(false);
+    // pre-fill form if already evaluated
+    const existing = evaluations[intern.id];
+    setFormValues({
+      recommend: existing?.recommend ?? false,
+      comment:   existing?.comment   ?? ''
+    });
+  };
+
+  const handleSubmitEval = e => {
+    e.preventDefault();
+    setEvaluations(prev => ({
+      ...prev,
+      [selected.id]: { ...formValues }
+    }));
+    setIsEditing(false);
+  };
+
+  const handleDeleteEval = () => {
+    setEvaluations(prev => {
+      const copy = { ...prev };
+      delete copy[selected.id];
+      return copy;
+    });
+    setFormValues({ recommend: false, comment: '' });
+    setIsEditing(false);
+  };
+
   return (
     <div style={{ padding: 20 }}>
       <h1>My Internships</h1>
 
-      {/* Search, Status & Date Filters */}
+      {/* Filters */}
       <div style={{ marginBottom: 12, display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         <label>
           Search:{' '}
@@ -49,7 +88,6 @@ export default function InternshipList() {
             style={{ padding: 4 }}
           />
         </label>
-
         <label>
           Show:{' '}
           <select
@@ -62,7 +100,6 @@ export default function InternshipList() {
             <option>Internship Complete</option>
           </select>
         </label>
-
         <label>
           From:{' '}
           <input
@@ -72,7 +109,6 @@ export default function InternshipList() {
             style={{ padding: 4 }}
           />
         </label>
-
         <label>
           To:{' '}
           <input
@@ -84,11 +120,11 @@ export default function InternshipList() {
         </label>
       </div>
 
-      {/* Internships Table with Action Column */}
+      {/* Internships Table */}
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 12 }}>
         <thead>
           <tr>
-            {['#','Company','Role','Start Date','End Date','Status','Action'].map(col => (
+            {['#','Company','Role','Start Date','End Date','Status','Select'].map(col => (
               <th
                 key={col}
                 style={{ border: '1px solid #ccc', padding: 8, textAlign: 'left' }}
@@ -114,7 +150,7 @@ export default function InternshipList() {
               <td style={{ border: '1px solid #eee', padding: 8 }}>
                 {item.status === 'Past' ? (
                   <button
-                    onClick={() => setSelected(item)}
+                    onClick={() => handleSelect(item)}
                     style={{ padding: '4px 8px', cursor: 'pointer' }}
                   >
                     Select
@@ -128,7 +164,7 @@ export default function InternshipList() {
         </tbody>
       </table>
 
-      {/* Selected Internship Details */}
+      {/* Selected Internship & Evaluation */}
       {selected && (
         <div style={{ marginTop: 24, padding: 16, border: '1px solid #ccc' }}>
           <h2>Selected Internship Details</h2>
@@ -136,7 +172,63 @@ export default function InternshipList() {
           <p><strong>Role:</strong> {selected.position}</p>
           <p><strong>Start Date:</strong> {selected.startDate}</p>
           <p><strong>End Date:</strong> {selected.endDate || '—'}</p>
-          <p><strong>Status:</strong> {selected.status === 'Present' ? 'Current Intern' : 'Internship Complete'}</p>
+          <p>
+            <strong>Status:</strong>{' '}
+            {selected.status === 'Present' ? 'Current Intern' : 'Internship Complete'}
+          </p>
+
+          {/* Evaluation Section */}
+          <h3>Evaluation</h3>
+
+          {evaluations[selected.id] && !isEditing ? (
+            // Read view
+            <div>
+              <p>
+                <strong>Recommend to others:</strong>{' '}
+                {evaluations[selected.id].recommend ? 'Yes' : 'No'}
+              </p>
+              <p>
+                <strong>Comment:</strong> {evaluations[selected.id].comment}
+              </p>
+              <button onClick={() => setIsEditing(true)} style={{ marginRight: 8 }}>
+                Edit
+              </button>
+              <button onClick={handleDeleteEval}>Delete</button>
+            </div>
+          ) : (
+            // Create / Update form
+            <form onSubmit={handleSubmitEval}>
+              <label style={{ display: 'block', marginBottom: 8 }}>
+                Recommend to others:{' '}
+                <input
+                  type="checkbox"
+                  checked={formValues.recommend}
+                  onChange={e =>
+                    setFormValues(fv => ({ ...fv, recommend: e.target.checked }))
+                  }
+                />
+              </label>
+              <label style={{ display: 'block', marginBottom: 8 }}>
+                Comment:
+                <textarea
+                  value={formValues.comment}
+                  onChange={e =>
+                    setFormValues(fv => ({ ...fv, comment: e.target.value }))
+                  }
+                  rows={3}
+                  style={{ width: '100%', padding: 4 }}
+                />
+              </label>
+              <button type="submit" style={{ marginRight: 8 }}>
+                {evaluations[selected.id] ? 'Update' : 'Submit'}
+              </button>
+              {evaluations[selected.id] && (
+                <button type="button" onClick={() => setIsEditing(false)}>
+                  Cancel
+                </button>
+              )}
+            </form>
+          )}
         </div>
       )}
     </div>
