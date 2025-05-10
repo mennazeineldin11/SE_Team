@@ -4,33 +4,45 @@ import React, { useState } from 'react';
 import internships from '../data/internships.json';
 
 export default function InternshipList() {
-  // 1️⃣ State for search term and status filter
+  // 1️⃣ State for search, status, and date filters
   const [searchTerm, setSearchTerm]     = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [fromDate, setFromDate]         = useState('');
+  const [toDate, setToDate]             = useState('');
 
-  // 2️⃣ Compute filtered list before rendering
+  // 2️⃣ Filter logic
   const filtered = internships.filter(item => {
-    // Search: match company or role (case-insensitive)
+    // — Search by company or position —
     const matchesSearch =
       item.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.position.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Status: All / Current Intern (Present) / Internship Complete (Past)
+    // — Status filter: All / Current Intern / Internship Complete —
     const matchesStatus =
       statusFilter === 'All' ||
       (statusFilter === 'Current Intern' && item.status === 'Present') ||
       (statusFilter === 'Internship Complete' && item.status === 'Past');
 
-    return matchesSearch && matchesStatus;
+    // — Date range filter —
+    // Parse internship dates
+    const start = new Date(item.startDate);
+    const end   = item.endDate ? new Date(item.endDate) : new Date();
+
+    // If fromDate is set, only include internships starting on/after that
+    const afterFrom = fromDate ? start >= new Date(fromDate) : true;
+    // If toDate is set, only include internships ending on/before that
+    const beforeTo = toDate ? end <= new Date(toDate) : true;
+
+    return matchesSearch && matchesStatus && afterFrom && beforeTo;
   });
 
   return (
     <div style={{ padding: 20 }}>
       <h1>My Internships</h1>
 
-      {/* 3️⃣ Search input & status dropdown */}
-      <div style={{ marginBottom: 12 }}>
-        <label style={{ marginRight: 16 }}>
+      {/* 3️⃣ Controls: Search, Status & Date */}
+      <div style={{ marginBottom: 12, display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        <label>
           Search:{' '}
           <input
             type="text"
@@ -40,6 +52,7 @@ export default function InternshipList() {
             style={{ padding: 4 }}
           />
         </label>
+
         <label>
           Show:{' '}
           <select
@@ -51,6 +64,26 @@ export default function InternshipList() {
             <option>Current Intern</option>
             <option>Internship Complete</option>
           </select>
+        </label>
+
+        <label>
+          From:{' '}
+          <input
+            type="date"
+            value={fromDate}
+            onChange={e => setFromDate(e.target.value)}
+            style={{ padding: 4 }}
+          />
+        </label>
+
+        <label>
+          To:{' '}
+          <input
+            type="date"
+            value={toDate}
+            onChange={e => setToDate(e.target.value)}
+            style={{ padding: 4 }}
+          />
         </label>
       </div>
 
