@@ -1,0 +1,15 @@
+.dashboard {
+  padding: 2rem;
+}
+.internship-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.internship-card {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: white;
+  width: 200px;
+}
