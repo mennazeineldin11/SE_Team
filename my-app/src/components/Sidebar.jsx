@@ -1,13 +1,16 @@
 import React from 'react';
 import './Sidebar.css';
 
+
 const tabs = [
   'Dashboard',
   'Companies Applying',
+  'Accepted Companies',
+  'Available Internships',   // ← new
   'Internship Reports',
   'Career Development',
-  // …other sections
 ];
+
 
 export default function Sidebar({ active, onTabChange }) {
   return (
@@ -20,7 +23,7 @@ export default function Sidebar({ active, onTabChange }) {
             className={tab === active ? 'active' : ''}
             onClick={() => onTabChange(tab)}
           >
-            {tab}
+            {tab}s
           </li>
         ))}
       </ul>
