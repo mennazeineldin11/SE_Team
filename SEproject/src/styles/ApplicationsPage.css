@@ -1,0 +1,19 @@
+
+.applications-page {
+  padding: 2rem;
+}
+.status {
+  font-weight: bold;
+}
+.status.pending {
+  color: orange;
+}
+.status.accepted {
+  color: green;
+}
+.status.rejected {
+  color: red;
+}
+.status.finalized {
+  color: blue;
+}

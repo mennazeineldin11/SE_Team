@@ -1,0 +1,20 @@
+.internships-page {
+  padding: 2rem;
+}
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.internship-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.internship-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
