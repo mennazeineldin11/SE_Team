@@ -1,18 +1,19 @@
+// src/components/Sidebar.jsx
 import React from 'react';
 import './Sidebar.css';
 
+export default function Sidebar({ active, onTabChange, role }) {
+  const tabs = [
+    'Dashboard',
+    'Companies Applying',
+    'Available Internships',
+    'Internship Reports',
+    'Career Development',
+    'Documents',
+    // Only SCAD Office sees this
+    ...(role === 'SCAD Office' ? ['Cycle Settings'] : [])
+  ];
 
-const tabs = [
-  'Dashboard',
-  'Companies Applying',
-  'Accepted Companies',
-  'Available Internships',   // ← new
-  'Internship Reports',
-  'Career Development',
-];
-
-
-export default function Sidebar({ active, onTabChange }) {
   return (
     <nav className="sidebar">
       <h1 className="sidebar-title">SCAD System</h1>
@@ -23,7 +24,7 @@ export default function Sidebar({ active, onTabChange }) {
             className={tab === active ? 'active' : ''}
             onClick={() => onTabChange(tab)}
           >
-            {tab}s
+            {tab}
           </li>
         ))}
       </ul>
