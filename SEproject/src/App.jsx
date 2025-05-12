@@ -1,27 +1,28 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import '../styles/ApplyPage.css';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-export default function ApplyPage() {
-  const { id } = useParams();
-  const [cv, setCv] = useState(null);
-  const [coverLetter, setCoverLetter] = useState('');
-  const [certificate, setCertificate] = useState(null);
+import LoginPage from "./pages/LoginPage";
+import Dashboard from "./pages/Dashboard";
+import ProfilePage from "./pages/ProfilePage";
+import MajorsPage from "./pages/MajorsPage";
+import InternshipsPage from "./pages/InternshipsPage";
+import InternshipDetails from "./pages/InternshipDetails";
+import ApplyPage from "./pages/ApplyPage";
+import ApplicationsPage from "./pages/ApplicationsPage";
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert('Application submitted successfully!');
-  };
-
+export default function App() {
   return (
-    <div className="apply-page">
-      <h2>Apply for Internship #{id}</h2>
-      <form onSubmit={handleSubmit}>
-        <textarea placeholder="Cover Letter" value={coverLetter} onChange={(e) => setCoverLetter(e.target.value)} />
-        <input type="file" onChange={(e) => setCv(e.target.files[0])} accept=".pdf" />
-        <input type="file" onChange={(e) => setCertificate(e.target.files[0])} accept=".pdf" />
-        <button type="submit">Submit</button>
-      </form>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/majors" element={<MajorsPage />} />
+        <Route path="/internships" element={<InternshipsPage />} />
+        <Route path="/internship/:id" element={<InternshipDetails />} />
+        <Route path="/apply/:id" element={<ApplyPage />} />
+        <Route path="/applications" element={<ApplicationsPage />} />
+      </Routes>
+    </Router>
   );
 }
