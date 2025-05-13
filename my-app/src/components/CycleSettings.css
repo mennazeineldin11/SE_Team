@@ -1,0 +1,21 @@
+.cycle-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cycle-settings label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cycle-settings button {
+  width: fit-content;
+  padding: 0.5rem 1rem;
+  background: #6fb3b8;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
