@@ -8,10 +8,12 @@ export default function Sidebar({ active, onTabChange, role }) {
     'Companies Applying',
     'Available Internships',
     'Internship Reports',
-    'Career Development',
     'Documents',
-    // Only SCAD Office sees this
-    ...(role === 'SCAD Office' ? ['Cycle Settings'] : [])
+    // SCAD Office only
+    ...(role === 'SCAD Office' ? ['Students', 'Cycle Settings', 'Statistics'] : []),
+    'Appointments',
+    'Video Call Room',
+    'Workshops',
   ];
 
   return (
